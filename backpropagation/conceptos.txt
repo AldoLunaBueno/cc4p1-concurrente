@@ -1,0 +1,18 @@
+
+Es una pregunta excelente y con mucha lógica. La respuesta a por qué la precisión es exactamente idéntica (81.66%) sin importar si usas 1, 4 o 16 hilos radica en dos características clave del Paralelismo de Datos (Mini-Batch) que programamos:
+
+1. Determinismo Matemático Pleno
+En nuestro código, al comenzar el lote de 256 imágenes, cada hilo calcula sus gradientes en memorias separadas (ThreadGradients) sin modificar directamente la red. Cuando todos terminan, el Hilo Principal suma y promedia todos esos resultados recopilados a la vez.
+
+Gracias a las matemáticas simples (la ley conmutativa de la adición), A + B da lo mismo que B + A. No importa si 16 hilos calculan 16 imágenes cada uno o si 1 hilo calcula por sí solo las 256 imágenes; la suma neta de los pesos de ese bloque será exactamente igual en todo momento. A diferencia de otros esquemas paralelos donde los hilos pelean caóticamente por modificar un recurso compartido, el nuestro es 100% determinista. Los hilos solo cambian la velocidad en la que se llega al número, no el resultado del número.
+
+(Además, fíjate que le pusimos una semilla fija de Random(1234) en el ParallelNeuralNetwork para obligar a que la red arranque siempre con los mismos pesos aleatorios, garantizando pruebas justas).
+
+2. ¿Por qué 81.66% y no 93.8% como el Serial?
+Como verás, la versión en serie (SGD Analítico Puro) alcanzó más del 93%, pero la Paralela siempre se quedó en 81.66%.
+
+Esto se debe a las frecuencias de actualización. En la red Serial, los pesos se ajustaban después de cada cada imagen (literalmente hizo 60,000 saltos de aprendizaje). En cambio, en nuestra red Paralela, usamos bloques de 256, lo cual agrupa la información de 256 imágenes antes de actualizar (solo dio poco más de 234 saltos de aprendizaje en la época).
+
+Al tener muchos menos saltos, aprendió menos en el mismo transcurso del dataset, pero recuerda la ventaja: es radicalmente más rápida. Si ajustas el Main.java para que la red Paralela se entrene durante 4 o 5 Épocas (volviendo a pasar por el bucle de las iteraciones), notarás que va a alcanzar e incluso sobrepasar fácilmente el 93% y todavía terminará en un tiempo brutalmente menor que la equivalente Serial haciendo 5 épocas.
+
+¡Que la precisión te dé constante entre hilos no significa que el código esté mal, significa que es un modelo paralelo perfecto matemáticamente!
