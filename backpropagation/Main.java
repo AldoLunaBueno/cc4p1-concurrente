@@ -10,10 +10,10 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-        String pathImagesTrain = "backpropagation/data/train-images-idx3-ubyte";
-        String pathLabelsTrain = "backpropagation/data/train-labels-idx1-ubyte";
-        String pathImagesTest = "backpropagation/data/t10k-images-idx3-ubyte";
-        String pathLabelsTest = "backpropagation/data/t10k-labels-idx1-ubyte";
+        String pathImagesTrain = "data/train-images-idx3-ubyte";
+        String pathLabelsTrain = "data/train-labels-idx1-ubyte";
+        String pathImagesTest = "data/t10k-images-idx3-ubyte";
+        String pathLabelsTest = "data/t10k-labels-idx1-ubyte";
 
         try {
             System.out.println("Cargando datos...");

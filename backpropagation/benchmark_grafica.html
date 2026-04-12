@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head><title>Benchmark Paralelo Backpropagation</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>body{font-family: sans-serif; text-align: center; background-color: #f4f4f9;} canvas{max-height: 500px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}</style>
+</head>
+<body>
+<h2>Entrenamiento Backpropagation: Hilos vs Tiempo</h2>
+<h4>(Tiempo Serial SGD de Referencia: 4437 ms)</h4>
+<div style="width: 80%; margin: 0 auto;"><canvas id="graficoHilos"></canvas></div>
+<script>
+const ctx = document.getElementById('graficoHilos').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [1,2,4,8,16,],
+        datasets: [{
+            label: 'Tiempo en Paralelo (Milisegundos)',
+            data: [4669,2337,1788,1846,2126,],
+            borderColor: 'rgb(54, 162, 235)',
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            tension: 0.1,
+            pointRadius: 8,
+            pointBackgroundColor: 'rgb(255, 99, 132)'
+        }]
+    },
+    options: {
+        scales: {
+            x: { title: {display: true, text: 'Cantidad de Hilos Lógicos', font: {size: 14}} },
+            y: { title: {display: true, text: 'Duración (ms)', font: {size: 14}}, beginAtZero: true }
+        },
+        plugins: {
+            legend: { labels: { font: {size: 16} } }
+        }
+    }
+});
+</script>
+</body>
+</html>
