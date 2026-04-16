@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <title>Benchmark: Dijkstra Multi-Source</title>
+    <script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 40px; }
+        h1, h2 { color: #2c3e50; }
+        table { width: 80%; border-collapse: collapse; margin-top: 20px; background-color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        th, td { padding: 12px 15px; text-align: center; border-bottom: 1px solid #ddd; }
+        th { background-color: #34495e; color: #fff; font-weight: bold; }
+        tr:hover { background-color: #f5f5f5; }
+        .highlight { color: #27ae60; font-weight: bold; }
+        .chart-container { width: 80%; margin-top: 40px; background-color: #fff; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+    <h1>Performance Report: Dijkstra Parallelization</h1>
+
+    <h2>Graph Context</h2>
+    <ul>
+        <li><strong>Total Nodes (|V|):</strong> 264.346</li>
+        <li><strong>Total Edges (|E|):</strong> 733.846</li>
+        <li><strong>Approximate Density:</strong> 2,78 edges/node</li>
+    </ul>
+
+    <h2>Test Parameters</h2>
+    <ul>
+        <li><strong>Evaluated Source Nodes:</strong> 500 of 264346</li>
+        <li><strong>Averaged Iterations per Test:</strong> 3</li>
+        <li><strong>Base Sequential Time (T1):</strong> 133516,23 ms</li>
+    </ul>
+
+    <table>
+        <tr>
+            <th>Thread Count (p)</th>
+            <th>Parallel Time (Tp) [ms]</th>
+            <th>Speedup (S = T1/Tp)</th>
+            <th>Efficiency (E = S/p)</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>133840,56</td>
+            <td class='highlight'>0,9976x</td>
+            <td>99,76%</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>77058,45</td>
+            <td class='highlight'>1,7327x</td>
+            <td>86,63%</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>51757,94</td>
+            <td class='highlight'>2,5796x</td>
+            <td>64,49%</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td>51168,69</td>
+            <td class='highlight'>2,6093x</td>
+            <td>32,62%</td>
+        </tr>
+        <tr>
+            <td>16</td>
+            <td>61670,69</td>
+            <td class='highlight'>2,1650x</td>
+            <td>13,53%</td>
+        </tr>
+    </table>
+
+    <div class='chart-container'>
+        <canvas id='timeChart'></canvas>
+    </div>
+    <div class='chart-container'>
+        <canvas id='speedupChart'></canvas>
+    </div>
+
+    <script>
+        // CHART 1: TIME VS THREADS
+        const ctxTime = document.getElementById('timeChart').getContext('2d');
+        new Chart(ctxTime, {
+            type: 'line',
+            data: {
+                labels: [1, 2, 4, 8, 16], 
+                datasets: [{
+                    label: 'Execution Time [s]',
+                    data: [133.84056, 77.05845, 51.75794, 51.16869, 61.67069],
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#c0392b',
+                    pointRadius: 5,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Thread Count' } },
+                    y: { title: { display: true, text: 'Time (s)' }, beginAtZero: true }
+                }
+            }
+        });
+
+        // CHART 2: TIME VS SPEEDUP            
+        const ctx = document.getElementById('speedupChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [1, 2, 4, 8, 16], 
+                datasets: [{
+                    label: 'Speedup vs Threads',
+                    data: [1.0, 1.73, 2.58, 2.61, 2.16],
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#2c3e50',
+                    pointRadius: 5,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Thread Count' } },
+                    y: { title: { display: true, text: 'Speedup' }, beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

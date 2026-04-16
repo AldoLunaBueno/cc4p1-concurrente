@@ -1,5 +1,3 @@
-
-
 public class PQItem {
     private Node node;
     private double priority; // Esta es la distancia dinámica

@@ -1,5 +1,3 @@
-
-
 public class Edge {
     Node node;
     double weight;

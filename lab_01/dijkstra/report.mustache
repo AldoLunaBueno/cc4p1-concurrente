@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <title>Benchmark: Dijkstra Multi-Source</title>
+    <script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 40px; }
+        h1, h2 { color: #2c3e50; }
+        table { width: 80%; border-collapse: collapse; margin-top: 20px; background-color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        th, td { padding: 12px 15px; text-align: center; border-bottom: 1px solid #ddd; }
+        th { background-color: #34495e; color: #fff; font-weight: bold; }
+        tr:hover { background-color: #f5f5f5; }
+        .highlight { color: #27ae60; font-weight: bold; }
+        .chart-container { width: 80%; margin-top: 40px; background-color: #fff; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+    <h1>Performance Report: Dijkstra Parallelization</h1>
+
+    <h2>Graph Context</h2>
+    <ul>
+        <li><strong>Total Nodes (|V|):</strong> {{totalNodes}}</li>
+        <li><strong>Total Edges (|E|):</strong> {{totalEdges}}</li>
+        <li><strong>Approximate Density:</strong> {{density}} edges/node</li>
+    </ul>
+
+    <h2>Test Parameters</h2>
+    <ul>
+        <li><strong>Evaluated Source Nodes:</strong> {{evaluatedSources}} of {{totalNodesRaw}}</li>
+        <li><strong>Averaged Iterations per Test:</strong> {{iterations}}</li>
+        <li><strong>Base Sequential Time (T1):</strong> {{seqTime}} ms</li>
+    </ul>
+
+    <table>
+        <tr>
+            <th>Thread Count (p)</th>
+            <th>Parallel Time (Tp) [ms]</th>
+            <th>Speedup (S = T1/Tp)</th>
+            <th>Efficiency (E = S/p)</th>
+        </tr>
+        {{#results}}
+        <tr>
+            <td>{{threads}}</td>
+            <td>{{parTime}}</td>
+            <td class='highlight'>{{speedup}}x</td>
+            <td>{{efficiencyPct}}%</td>
+        </tr>
+        {{/results}}
+    </table>
+
+    <div class='chart-container'>
+        <canvas id='timeChart'></canvas>
+    </div>
+    <div class='chart-container'>
+        <canvas id='speedupChart'></canvas>
+    </div>
+
+    <script>
+        // CHART 1: TIME VS THREADS
+        const ctxTime = document.getElementById('timeChart').getContext('2d');
+        new Chart(ctxTime, {
+            type: 'line',
+            data: {
+                labels: {{{jsLabelsThreads}}}, 
+                datasets: [{
+                    label: 'Execution Time [s]',
+                    data: {{{jsDataTime}}},
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#c0392b',
+                    pointRadius: 5,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Thread Count' } },
+                    y: { title: { display: true, text: 'Time (s)' }, beginAtZero: true }
+                }
+            }
+        });
+
+        // CHART 2: TIME VS SPEEDUP            
+        const ctx = document.getElementById('speedupChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{{jsLabelsThreads}}}, 
+                datasets: [{
+                    label: 'Speedup vs Threads',
+                    data: {{{jsDataSpeedup}}},
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#2c3e50',
+                    pointRadius: 5,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Thread Count' } },
+                    y: { title: { display: true, text: 'Speedup' }, beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
