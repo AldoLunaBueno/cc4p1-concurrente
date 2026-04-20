@@ -1,4 +1,4 @@
-package uni.cc4p1.labo_02.game;
+package uni.game;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

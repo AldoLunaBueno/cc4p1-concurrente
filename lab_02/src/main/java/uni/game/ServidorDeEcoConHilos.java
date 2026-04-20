@@ -1,4 +1,4 @@
-package uni.cc4p1.labo_02.game;
+package uni.game;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;

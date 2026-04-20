@@ -1,4 +1,4 @@
-package uni.cc4p1.labo_02.game;
+package uni.game;
 public class IniciaServidorConHilos {
     public static void main(String[] args) {
         ServidorDeEcoConHilos server = new ServidorDeEcoConHilos();

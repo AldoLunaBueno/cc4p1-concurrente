@@ -1,3 +1,4 @@
 {
-    "jdk.jdkhome": "C:\\Program Files\\Java\\jdk-18.0.2.1"
+    "jdk.jdkhome": "C:\\Program Files\\Java\\jdk-18.0.2.1",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

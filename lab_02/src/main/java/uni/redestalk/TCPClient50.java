@@ -1,4 +1,4 @@
-package uni.cc4p1.labo_02.redesOk;
+package uni.redestalk;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
