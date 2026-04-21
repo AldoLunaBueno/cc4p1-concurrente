@@ -16,6 +16,7 @@ public class BoardTest {
     @Test
     void testEmptyBoard() {
         assertEquals(board.getState(7, 8), 0); // el estado vacío es 0
+        assertEquals(board.getState(19, 9), 0);
     }
 
     @Test
@@ -30,9 +31,9 @@ public class BoardTest {
 
     @Test
     void testLockBlock() {
-        int idJugador = 1;
-        board.lockBlock(19, 5, idJugador);
-        assertEquals(board.getState(19, 5), idJugador);
+        int player = 1;
+        board.lockBlock(19, 5, player);
+        assertEquals(board.getState(19, 5), player);
         assertEquals(board.getState(19, 4), 0);
         assertEquals(board.getState(19, 6), 0);
     }
