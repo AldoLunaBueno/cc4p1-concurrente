@@ -11,6 +11,12 @@ public class Board {
         this.columns = columns;
     }
 
+    public Board(int[][] matrix) {
+        this.matrix = matrix;
+        this.rows = matrix.length;
+        this.columns = matrix[0].length;
+    }
+
     public int getState(int i, int j) {
         return matrix[i][j];
     }

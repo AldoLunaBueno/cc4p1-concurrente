@@ -15,9 +15,8 @@ public class ActivePiece {
         this.rotationIndex = 0;
         this.x = x;
         this.y = y;
-        this.rows = piece.getShape(x).length;
-        this.columns = piece.getShape(x)[0].length;
-        
+        this.rows = piece.getShape(0).length;
+        this.columns = piece.getShape(0)[0].length;
     }
 
     // Cambiar estado
