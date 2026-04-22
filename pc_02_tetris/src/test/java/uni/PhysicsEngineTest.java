@@ -6,11 +6,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static uni.Shape.*;
+
 public class PhysicsEngineTest {
+    private PhysicsEngine engine;
     private Board board;
 
     @BeforeEach
     void setUp() {
+        engine = new PhysicsEngine();
         board = new Board(new int[][]{
         //   0  1  2  3  4  5
             {0, 0, 0, 0, 0, 0}, // 0
@@ -24,30 +28,30 @@ public class PhysicsEngineTest {
 
     @Test
     void testIsValidMove() {
-        ActivePiece piece = new ActivePiece(PieceType.O_PIECE, 1, 2, 1);
-        assertTrue(PhysicsEngine.isValidMove(piece, board, 1, 0));
-        assertTrue(PhysicsEngine.isValidMove(piece, board, -1, 0));
-        assertTrue( PhysicsEngine.isValidMove(piece, board, 0, 1));;
+        Piece piece = new Piece(PIECE_O, 1, 2, 1);
+        assertTrue(engine.isValidMove(piece, board, 1, 0));
+        assertTrue(engine.isValidMove(piece, board, -1, 0));
+        assertTrue( engine.isValidMove(piece, board, 0, 1));;
     }
 
     @Test
     void testIsNotValidMove() {
-        ActivePiece piece = new ActivePiece(PieceType.O_PIECE, 1, 2, 3);
-        assertFalse(PhysicsEngine.isValidMove(piece, board, 1, 0));;
-        assertFalse(PhysicsEngine.isValidMove(piece, board, -1, 0));
-        assertFalse(PhysicsEngine.isValidMove(piece, board, 0, 1));
+        Piece piece = new Piece(PIECE_O, 1, 2, 3);
+        assertFalse(engine.isValidMove(piece, board, 1, 0));;
+        assertFalse(engine.isValidMove(piece, board, -1, 0));
+        assertFalse(engine.isValidMove(piece, board, 0, 1));
     }
 
     @Test
     void testBoardBoundaryCollisions() {
-        ActivePiece piece1 = new ActivePiece(PieceType.T_PIECE, 1, 0, 0);
+        Piece piece1 = new Piece(PIECE_T, 1, 0, 0);
         piece1.rotate();
-        assertTrue(PhysicsEngine.isValidMove(piece1, board, -1, 0));
+        assertTrue(engine.isValidMove(piece1, board, -1, 0));
 
-        ActivePiece piece2 = new ActivePiece(PieceType.T_PIECE, 1, 3, 0);
+        Piece piece2 = new Piece(PIECE_T, 1, 3, 0);
         piece2.rotate();
         piece2.rotate();
         piece2.rotate();
-        assertTrue(PhysicsEngine.isValidMove(piece2, board, 1, 0));
+        assertTrue(engine.isValidMove(piece2, board, 1, 0));
     }
 }

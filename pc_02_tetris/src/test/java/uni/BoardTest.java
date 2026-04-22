@@ -13,6 +13,7 @@ public class BoardTest {
     void setUp() {
         board = new Board(20, 10); // filas: 0-19, columnas: 0-9
     }
+
     @Test
     void testEmptyBoard() {
         assertEquals(board.getState(8, 7), 0); // el estado vacío es 0
@@ -22,7 +23,7 @@ public class BoardTest {
     @Test
     void testBoardBounds() {
         assertThrows(IndexOutOfBoundsException.class, () -> {
-            board.getState(0, -1);            
+            board.getState(0, -1);
         });
         assertThrows(IndexOutOfBoundsException.class, () -> {
             board.getState(10, 0);
