@@ -17,12 +17,12 @@ public class Board {
         this.columns = matrix[0].length;
     }
 
-    public int getState(int i, int j) {
-        return matrix[i][j];
+    public int getState(int x, int y) {
+        return matrix[y][x];
     }
 
-    public void lockBlock(int i, int j, int player) {
-        matrix[i][j] = player;
+    public void lockBlock(int x, int y, int player) {
+        matrix[y][x] = player;
     }
 
     public int rows() {

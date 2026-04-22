@@ -15,26 +15,26 @@ public class BoardTest {
     }
     @Test
     void testEmptyBoard() {
-        assertEquals(board.getState(7, 8), 0); // el estado vacío es 0
-        assertEquals(board.getState(19, 9), 0);
+        assertEquals(board.getState(8, 7), 0); // el estado vacío es 0
+        assertEquals(board.getState(9, 19), 0);
     }
 
     @Test
     void testBoardBounds() {
         assertThrows(IndexOutOfBoundsException.class, () -> {
-            board.getState(-1, 0);            
+            board.getState(0, -1);            
         });
         assertThrows(IndexOutOfBoundsException.class, () -> {
-            board.getState(0, 10);
+            board.getState(10, 0);
         });
     }
 
     @Test
     void testLockBlock() {
         int player = 1;
-        board.lockBlock(19, 5, player);
-        assertEquals(board.getState(19, 5), player);
-        assertEquals(board.getState(19, 4), 0);
-        assertEquals(board.getState(19, 6), 0);
+        board.lockBlock(5, 19, player);
+        assertEquals(board.getState(5, 19), player);
+        assertEquals(board.getState(4, 19), 0);
+        assertEquals(board.getState(6, 19), 0);
     }
 }
