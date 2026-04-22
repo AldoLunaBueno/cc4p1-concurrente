@@ -1,7 +1,7 @@
 package uni;
 
 public class PhysicsEngine {
-    public static boolean isValidMove(ActivePiece piece, Board board, int deltaX, int deltaY) {
+    public boolean isValidMove(Piece piece, Board board, int deltaX, int deltaY) {
         // vale para movimientos hacia los lados, 
         // pero también hacia abajo o incluso hacia arriba
 
