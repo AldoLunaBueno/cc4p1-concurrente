@@ -1,21 +1,21 @@
 package uni;
 
-public enum PieceType {
+public enum Shape {
     
-    B_PIECE(new int[][][]{
+    PIECE_B(new int[][][]{
         {
             { 1 }
         }
     }),
     
-    O_PIECE(new int[][][]{
+    PIECE_O(new int[][][]{
         {
             {1, 1},
             {1, 1}
         }
     }),
 
-    L_PIECE(new int[][][]{
+    PIECE_L(new int[][][]{
         {
             {0, 1},
             {1, 1}
@@ -34,7 +34,7 @@ public enum PieceType {
         }
     }),
 
-    T_PIECE(new int[][][]{
+    PIECE_T(new int[][][]{
         {
             {0, 1, 0},
             {1, 1, 1},
@@ -59,7 +59,7 @@ public enum PieceType {
 
     private final int[][][] rotations;
 
-    PieceType(int[][][] rotations) {
+    Shape(int[][][] rotations) {
         this.rotations = rotations;
     }
 
