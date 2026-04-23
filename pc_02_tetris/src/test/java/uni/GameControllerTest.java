@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 public class GameControllerTest {
     private Board board;
     private OnePieceGenerator generator;
-    private PhysicsEngine engine;
+    private CollisionEngine engine;
     private GameController controller;
 
     @BeforeEach
@@ -20,8 +20,8 @@ public class GameControllerTest {
                 { 0, 0, 0 }
         });
         generator = new OnePieceGenerator(board.columns(), PIECE_B);
-        engine = new PhysicsEngine();
-        controller = new GameController(board, generator, engine);
+        engine = new CollisionEngine();
+        controller = new GameController(board, generator, engine, null, null);
     }
 
     @Test

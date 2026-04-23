@@ -1,6 +1,6 @@
 package uni;
 
-public class PhysicsEngine {
+public class CollisionEngine {
     public boolean isValidMove(Piece piece, Board board, int deltaX, int deltaY) {
         // vale para movimientos hacia los lados, 
         // pero también hacia abajo o incluso hacia arriba

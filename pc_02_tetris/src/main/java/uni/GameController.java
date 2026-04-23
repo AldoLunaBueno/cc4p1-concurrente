@@ -5,11 +5,11 @@ import java.util.ArrayList;
 public class GameController {
     private Board board;
     private PieceGenerator generator;
-    private PhysicsEngine engine;
+    private CollisionEngine engine;
     private ArrayList<Piece> pieces;
     private int gameTick;
 
-    public GameController(Board board, PieceGenerator generator, PhysicsEngine engine) {
+    public GameController(Board board, PieceGenerator generator, CollisionEngine engine, KeyInput in, GameRenderer renderer) {
         this.board = board;
         this.generator = generator;
         this.engine = engine;

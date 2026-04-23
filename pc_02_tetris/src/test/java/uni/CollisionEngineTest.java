@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 
 import static uni.Shape.*;
 
-public class PhysicsEngineTest {
-    private PhysicsEngine engine;
+public class CollisionEngineTest {
+    private CollisionEngine engine;
     private Board board;
 
     @BeforeEach
     void setUp() {
-        engine = new PhysicsEngine();
+        engine = new CollisionEngine();
         board = new Board(new int[][]{
         //   0  1  2  3  4  5
             {0, 0, 0, 0, 0, 0}, // 0
