@@ -59,4 +59,46 @@ public class MinimalConsoleRenderer {
         System.out.print(frameBuffer.toString());
         System.out.flush();
     }
+    
+    public String renderToString(Board board, List<Piece> pieces, GameState state) {
+    StringBuilder sb = new StringBuilder();
+
+    int[][] grid = board.getMatrix();
+
+    // copia para no romper estado
+    int[][] temp = new int[grid.length][grid[0].length];
+    for (int i = 0; i < grid.length; i++) {
+        System.arraycopy(grid[i], 0, temp[i], 0, grid[i].length);
+    }
+
+    // dibujar piezas activas
+    for (Piece p : pieces) {
+        int[][] shape = p.getCurrentShape();
+
+        for (int i = 0; i < shape.length; i++) {
+            for (int j = 0; j < shape[i].length; j++) {
+                if (shape[i][j] != 0) {
+                    int x = p.getX() + j;
+                    int y = p.getY() + i;
+
+                    if (y >= 0 && y < temp.length && x >= 0 && x < temp[0].length) {
+                        temp[y][x] = 1;
+                    }
+                }
+            }
+        }
+    }
+
+    // construir string
+    for (int i = 0; i < temp.length; i++) {
+        for (int j = 0; j < temp[i].length; j++) {
+            sb.append(temp[i][j] == 0 ? "." : "#");
+        }
+        sb.append("\n");
+    }
+
+    sb.append("-----\n");
+
+    return sb.toString();
+}
 }

@@ -1,6 +1,7 @@
 package uni;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 
 public class GameController {
@@ -29,16 +30,27 @@ public class GameController {
         this.pieces = new ArrayList<>();
         this.gameTick = 0;
         this.state = GameState.PLAYING;
-        this.currentTickCommands = new java.util.LinkedList<>();
+        this.currentTickCommands = new java.util.concurrent.ConcurrentLinkedQueue<>();
+        
+        
+    }
+    public Board getBoard() { return board; }
+        public List<Piece> getPieces() { return pieces; }
+        public GameState getState() { return state; }
+    
+    public void enqueueCommand(Command cmd) {
+    currentTickCommands.add(cmd);
     }
 
     // Solo extrae del exterior y encola, no muta el estado
     public void processInputs() {
+
         if (state != GameState.PLAYING) return;
-        
+
         // Vaciamos la cola concurrente del hilo de I/O y la pasamos 
         // a la cola secuencial de nuestro motor lógico.
         Queue<Command> externalCommands = in.pollCommands();
+        System.out.println("commands: " + externalCommands.size());
         while (!externalCommands.isEmpty()) {
             currentTickCommands.add(externalCommands.poll());
         }
