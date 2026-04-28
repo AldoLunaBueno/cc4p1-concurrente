@@ -11,22 +11,24 @@ public class TetrisClient {
     public static void main(String[] args) throws Exception {
         Socket socket = new Socket("localhost", 5000);
 
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(socket.getInputStream()));
-        PrintWriter out = new PrintWriter(
-                socket.getOutputStream(), true);
+        // We use ObjectInputStream to read the game state.
+        ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+        MinimalConsoleRenderer renderer = new MinimalConsoleRenderer();
 
         // hilo para escuchar estado
         new Thread(() -> {
             try {
-                String line;
-                while ((line = in.readLine()) != null) {
-                    System.out.println("Estado: " + line);
+                while (true) {
+                    GameUpdatePacket packet = (GameUpdatePacket) in.readObject();
+                    renderer.render(packet.board, packet.pieces, packet.state);
                 }
-            } catch (IOException e) {}
+            } catch (Exception e) {
+                System.out.println("\n--- Desconectado del servidor ---");
+            }
         }).start();
 
-        // input del usuario
+        // input del usuario (mantiene PrintWriter y String lines)
         BufferedReader keyboard = new BufferedReader(
                 new InputStreamReader(System.in));
 
@@ -36,4 +38,3 @@ public class TetrisClient {
         }
     }
 }
-    

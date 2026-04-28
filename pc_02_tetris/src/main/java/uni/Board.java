@@ -1,6 +1,8 @@
 package uni;
 
-public class Board {
+import java.io.Serializable;
+
+public class Board implements Serializable {
     private final int[][] matrix; // bloques estáticos (ya cayeron)
     private int rows;
     private int columns;

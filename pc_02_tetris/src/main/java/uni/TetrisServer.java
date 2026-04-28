@@ -5,32 +5,43 @@ import java.io.*;
 import java.util.*;
 
 public class TetrisServer {
+
     public static void main(String[] args) {
-        
         try {
-            Board board = new Board(20, 10);
-            CollisionEngine engine = new CollisionEngine();
-            PieceGenerator generator = new OnePieceGenerator(10, Shape.PIECE_B);
-            KeyInput in = new KeyInput();
-        MinimalConsoleRenderer out = new MinimalConsoleRenderer();
-        GameController controller = new GameController(board, generator, engine, in, out);
-           
-
-            TetrisServer server = new TetrisServer(5000, controller);
+            TetrisServer server = new TetrisServer(5000);
             server.start();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    private MinimalConsoleRenderer renderer = new MinimalConsoleRenderer();
+
     private ServerSocket serverSocket;
     private List<ClientHandler> clients = new ArrayList<>();
+    private Queue<ClientHandler> queue = new LinkedList<>();
+    private ClientHandler activeClient = null;
     private GameController controller;
+    private char nextPlayerChar = 'A';
 
-    public TetrisServer(int port, GameController controller) throws IOException {
+    public TetrisServer(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
-        this.controller = controller;
+        Board board = new Board(20, 10);
+        CollisionEngine engine = new CollisionEngine();
+        
+        PieceGenerator generator = new PieceGenerator() {
+            @Override
+            public Piece createPiece() {
+                synchronized (queue) {
+                    if (!queue.isEmpty()) {
+                        activeClient = queue.poll();
+                        return new Piece(Shape.PIECE_B, activeClient.getPlayerId(), 10 / 2, 0);
+                    }
+                }
+                activeClient = null;
+                return null;
+            }
+        };
+
+        this.controller = new GameController(board, engine, generator);
     }
 
     public void start() throws IOException {
@@ -41,10 +52,15 @@ public class TetrisServer {
             while (true) {
                 try {
                     Socket socket = serverSocket.accept();
-                    ClientHandler client = new ClientHandler(socket, this);
-                    clients.add(client);
+                    ClientHandler client = new ClientHandler(socket, this, nextPlayerChar++);
+                    synchronized (clients) {
+                        clients.add(client);
+                    }
+                    synchronized (queue) {
+                        queue.add(client);
+                    }
                     new Thread(client).start();
-                    System.out.println("Cliente conectado");
+                    System.out.println("Cliente conectado: " + client.getPlayerId());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -56,60 +72,26 @@ public class TetrisServer {
             controller.update();
             broadcastState();
             
-            try { Thread.sleep(10); } catch (InterruptedException e) {}
+            try { Thread.sleep(16); } catch (InterruptedException e) {}
         }
     }
 
-    public void receiveCommand(Command cmd) {
-        controller.enqueueCommand(cmd);
+    public void receiveCommand(Command cmd, ClientHandler sender) {
+        if (sender == activeClient) {
+            controller.enqueueCommand(cmd);
+        }
     }
 
     private void broadcastState() {
-        String state = serializeState();
-        for (ClientHandler c : clients) {
-            c.send(state);
-        }
-    }
-
-    private String serializeState() {
-    StringBuilder sb = new StringBuilder();
-
-    int[][] grid = controller.getBoard().getMatrix();
-
-    // copia del tablero (para no modificar el original)
-    int[][] temp = new int[grid.length][grid[0].length];
-    for (int i = 0; i < grid.length; i++) {
-        System.arraycopy(grid[i], 0, temp[i], 0, grid[i].length);
-    }
-
-    // 🔥 dibujar piezas activas
-    for (Piece p : controller.getPieces()) {
-        int[][] shape = p.getCurrentShape();
-
-        for (int i = 0; i < shape.length; i++) {
-            for (int j = 0; j < shape[i].length; j++) {
-                if (shape[i][j] != 0) {
-                    int x = p.getX() + j;
-                    int y = p.getY() + i;
-
-                    if (y >= 0 && y < temp.length && x >= 0 && x < temp[0].length) {
-                        temp[y][x] = 1;
-                    }
-                }
+        GameUpdatePacket packet = new GameUpdatePacket(
+            controller.getBoard(), 
+            controller.getPieces(), 
+            controller.getState()
+        );
+        synchronized(clients) {
+            for (ClientHandler c : clients) {
+                c.sendPacket(packet);
             }
         }
     }
-
-    // 🔥 convertir a texto
-    for (int i = 0; i < temp.length; i++) {
-        for (int j = 0; j < temp[i].length; j++) {
-            sb.append(temp[i][j] == 0 ? "." : "#");
-        }
-        sb.append("\n");
-    }
-
-    sb.append("-----\n");
-
-    return sb.toString();
-}
 }

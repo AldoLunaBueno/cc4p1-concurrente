@@ -1,23 +1,28 @@
 package uni;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 class ClientHandler implements Runnable {
     private Socket socket;
     private BufferedReader in;
-    private PrintWriter out;
+    private ObjectOutputStream out;
     private TetrisServer server;
+    private char playerId;
 
-    public ClientHandler(Socket socket, TetrisServer server) throws IOException {
+    public ClientHandler(Socket socket, TetrisServer server, char playerId) throws IOException {
         this.socket = socket;
         this.server = server;
+        this.playerId = playerId;
+        this.out = new ObjectOutputStream(socket.getOutputStream());
         this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        this.out = new PrintWriter(socket.getOutputStream(), true);
+    }
+
+    public char getPlayerId() {
+        return playerId;
     }
 
     @Override
@@ -26,21 +31,27 @@ class ClientHandler implements Runnable {
             String line;
             while ((line = in.readLine()) != null) {
                 Command cmd = parseCommand(line);
-                if (cmd != null) { // 🔥 FIX
-                    server.receiveCommand(cmd);
-                }               
+                if (cmd != null) {
+                    server.receiveCommand(cmd, this);
+                }
             }
         } catch (IOException e) {
-            System.out.println("Cliente desconectado");
+            System.out.println("Cliente desconectado: " + playerId);
         }
     }
 
-    public void send(String msg) {
-        out.println(msg);
+    public void sendPacket(GameUpdatePacket packet) {
+        try {
+            out.writeObject(packet);
+            out.reset(); // Crucial to prevent caching stale state
+            out.flush();
+        } catch (IOException e) {
+            System.out.println("Error enviando paquete a " + playerId);
+        }
     }
 
     private Command parseCommand(String input) {
-        input = input.trim().toLowerCase(); // 🔥 clave
+        input = input.trim().toLowerCase();
         return switch (input) {
             case "a" -> new MoveLeftCommand();
             case "d" -> new MoveRightCommand();

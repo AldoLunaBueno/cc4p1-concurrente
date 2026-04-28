@@ -30,7 +30,7 @@ public class FixedStepGameLoop implements GameLoop {
             previousTime = currentTime;
             lag += elapsedTime;
 
-            controller.processInputs();
+            // controller.processInputs(); // Moved to Server/Client queues
 
             while (lag >= MS_PER_TICK) {
                 controller.update();
@@ -38,7 +38,7 @@ public class FixedStepGameLoop implements GameLoop {
             }
 
             // Aquí el broadcast bloquea el siguiente ciclo lógico
-            controller.sendState(); 
+            // controller.sendState(); // Moved to Server broadcast
         }
     }
 }

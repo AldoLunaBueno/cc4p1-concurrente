@@ -49,7 +49,11 @@ public class MinimalConsoleRenderer {
         for (int y = 0; y < rows; y++) {
             frameBuffer.append("|");
             for (int x = 0; x < cols; x++) {
-                frameBuffer.append(display[y][x] == 0 ? " . " : "[] ");
+                if (display[y][x] == 0) {
+                    frameBuffer.append(" . ");
+                } else {
+                    frameBuffer.append("[").append((char) display[y][x]).append("]");
+                }
             }
             frameBuffer.append("|\n"); // Salto de línea en el buffer
         }
