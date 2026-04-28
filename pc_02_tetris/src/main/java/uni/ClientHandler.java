@@ -37,6 +37,7 @@ class ClientHandler implements Runnable {
             }
         } catch (IOException e) {
             System.out.println("Cliente desconectado: " + playerId);
+            // server.disconnectClient(this);
         }
     }
 

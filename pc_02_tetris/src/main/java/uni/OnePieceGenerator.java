@@ -11,10 +11,11 @@ public class OnePieceGenerator implements PieceGenerator {
         this.count = 0;
     }
 
-    public Piece createPiece() {
-        Piece piece = new Piece(shape, 1, columns/2, 0);
+    @Override
+    public Piece createPiece(int playerId) {
+        Piece piece = new Piece(shape, playerId, columns / 2, 0);
         this.count++;
-        return piece;        
+        return piece;
     }
 
     public int getCount() {

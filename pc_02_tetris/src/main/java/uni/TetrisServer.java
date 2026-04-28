@@ -29,11 +29,14 @@ public class TetrisServer {
         
         PieceGenerator generator = new PieceGenerator() {
             @Override
-            public Piece createPiece() {
+            public Piece createPiece(int playerId) { // Added int parameter to fix compilation
                 synchronized (queue) {
                     if (!queue.isEmpty()) {
                         activeClient = queue.poll();
-                        return new Piece(Shape.PIECE_B, activeClient.getPlayerId(), 10 / 2, 0);
+                        queue.add(activeClient); // Re-queue for next turn so it doesn't freeze!
+                        int playerCharId = activeClient.getPlayerId();
+                        controller.setActivePlayer(playerCharId);
+                        return new Piece(Shape.PIECE_B, playerCharId, 10 / 2, 0);
                     }
                 }
                 activeClient = null;
@@ -74,6 +77,19 @@ public class TetrisServer {
             
             try { Thread.sleep(16); } catch (InterruptedException e) {}
         }
+    }
+
+    public void disconnectClient(ClientHandler client) {
+        synchronized (clients) {
+            clients.remove(client);
+        }
+        synchronized (queue) {
+            queue.remove(client);
+        }
+        if (activeClient == client) {
+            activeClient = null; // Next server tick will assign a new player naturally because pieces will lock/empty
+        }
+        System.out.println("Servidor: Cliente removido de la cola.");
     }
 
     public void receiveCommand(Command cmd, ClientHandler sender) {

@@ -18,6 +18,9 @@ public class GameController {
     private int gravityCounter = 0;
     private static final int TICKS_PER_DROP = 30; // Cae cada 30 ticks (0.5s a 60 TPS)
 
+    // ... tus otros campos ...
+    private int activePlayerId = 0; // Por defecto o 0
+
     public GameController(Board board, CollisionEngine engine, PieceGenerator generator) {
         this.board = board;
         this.engine = engine;
@@ -26,6 +29,11 @@ public class GameController {
         this.gameTick = 0;
         this.state = GameState.PLAYING;
         this.currentTickCommands = new java.util.LinkedList<>();
+    }
+
+    // Método para que el servidor le diga al controlador quién juega
+    public void setActivePlayer(int playerId) {
+        this.activePlayerId = playerId;
     }
 
     public void enqueueCommand(Command cmd) {
@@ -41,7 +49,8 @@ public class GameController {
 
         // Spawnear nueva pieza
         if (pieces.isEmpty()) {
-            Piece piece = generator.createPiece();
+            // AQUÍ ESTÁ EL CAMBIO: Pasamos el estado interno
+            Piece piece = generator.createPiece(this.activePlayerId);
             if (piece != null) {
                 if (engine.isValidMove(piece, board, 0, 0)) {
                     pieces.add(piece);
