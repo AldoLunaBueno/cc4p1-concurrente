@@ -7,9 +7,9 @@ public class App {
         Board board = new Board(20, 10);
         CollisionEngine engine = new CollisionEngine();
         PieceGenerator generator = new OnePieceGenerator(10, PIECE_B);
-        KeyInput in = new KeyInput();
-        MinimalConsoleRenderer out = new MinimalConsoleRenderer();
-        GameController controller = new GameController(board, generator, engine, in, out);
+        // KeyInput in = new KeyInput();
+        // MinimalConsoleRenderer out = new MinimalConsoleRenderer();
+        GameController controller = new GameController(board, engine, generator);
         GameLoop loop = new FixedStepGameLoop(controller);
         loop.start();
     }

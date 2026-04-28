@@ -1,6 +1,8 @@
 package uni;
 
-public class Piece {
+import java.io.Serializable;
+
+public class Piece implements Serializable {
     private Shape shape;
     private int player;
     private int x;
@@ -31,11 +33,11 @@ public class Piece {
 
     public void moveRight() {
         this.x++;
-    }    
+    }
 
     public void rotate() {
-        this.rotationIndex = (this.rotationIndex+1) % 4;
-    }  
+        this.rotationIndex = (this.rotationIndex + 1) % 4;
+    }
 
     // Obtener estado
 
@@ -61,5 +63,5 @@ public class Piece {
 
     public int columns() {
         return columns;
-    }  
+    }
 }

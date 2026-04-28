@@ -7,9 +7,7 @@ public class GameController {
     private Board board;
     private PieceGenerator generator;
     private CollisionEngine engine;
-    private KeyInput in;
-    private MinimalConsoleRenderer out;
-    
+
     private ArrayList<Piece> pieces;
     private int gameTick;
     private GameState state;
@@ -20,44 +18,52 @@ public class GameController {
     private int gravityCounter = 0;
     private static final int TICKS_PER_DROP = 30; // Cae cada 30 ticks (0.5s a 60 TPS)
 
-    public GameController(Board board, PieceGenerator generator, CollisionEngine engine, KeyInput in, MinimalConsoleRenderer out) {
+    // ... tus otros campos ...
+    private int activePlayerId = 0; // Por defecto o 0
+
+    public GameController(Board board, CollisionEngine engine, PieceGenerator generator) {
         this.board = board;
-        this.generator = generator;
         this.engine = engine;
-        this.in = in;
-        this.out = out;
+        this.generator = generator;
         this.pieces = new ArrayList<>();
         this.gameTick = 0;
         this.state = GameState.PLAYING;
         this.currentTickCommands = new java.util.LinkedList<>();
     }
 
-    // Solo extrae del exterior y encola, no muta el estado
-    public void processInputs() {
-        if (state != GameState.PLAYING) return;
-        
-        // Vaciamos la cola concurrente del hilo de I/O y la pasamos 
-        // a la cola secuencial de nuestro motor lógico.
-        Queue<Command> externalCommands = in.pollCommands();
-        while (!externalCommands.isEmpty()) {
-            currentTickCommands.add(externalCommands.poll());
+    // Método para que el servidor le diga al controlador quién juega
+    public void setActivePlayer(int playerId) {
+        this.activePlayerId = playerId;
+    }
+
+    public void enqueueCommand(Command cmd) {
+        if (state == GameState.PLAYING) {
+            currentTickCommands.add(cmd);
         }
     }
 
-        // Mutación centralizada
+    // Mutación centralizada
     public boolean update() {
-        if (state != GameState.PLAYING) return false;
+        if (state != GameState.PLAYING)
+            return false;
 
         // Spawnear nueva pieza
         if (pieces.isEmpty()) {
-            Piece piece = generator.createPiece();
-            if (engine.isValidMove(piece, board, 0, 0)) {
-                pieces.add(piece);
-                gameTick++;
-                return true;
+            // AQUÍ ESTÁ EL CAMBIO: Pasamos el estado interno
+            Piece piece = generator.createPiece(this.activePlayerId);
+            if (piece != null) {
+                if (engine.isValidMove(piece, board, 0, 0)) {
+                    pieces.add(piece);
+                    gameTick++;
+                    return true;
+                } else {
+                    state = GameState.GAMEOVER;
+                    gameTick++;
+                    return false; // ya terminó el juego
+                }
             } else {
                 gameTick++;
-                return false; // ya termińo el juego
+                return true; // Esperando jugador
             }
         }
 
@@ -102,8 +108,16 @@ public class GameController {
         pieces.remove(piece);
     }
 
-    public void sendState() {
-        out.render(board, pieces, state);
+    public Board getBoard() {
+        return board;
+    }
+
+    public ArrayList<Piece> getPieces() {
+        return pieces;
+    }
+
+    public GameState getState() {
+        return state;
     }
 
     public int getGameTick() {
