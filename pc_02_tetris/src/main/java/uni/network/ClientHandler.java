@@ -1,10 +1,16 @@
-package uni;
+package uni.network;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+
+import uni.command.Command;
+import uni.command.MoveDownCommand;
+import uni.command.MoveLeftCommand;
+import uni.command.MoveRightCommand;
+import uni.view.PlayerSymbolMapper;
 
 class ClientHandler implements Runnable {
     private Socket socket;

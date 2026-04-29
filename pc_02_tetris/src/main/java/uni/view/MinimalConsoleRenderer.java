@@ -1,6 +1,10 @@
-package uni;
+package uni.view;
 
 import java.util.List;
+
+import uni.model.Board;
+import uni.model.GameState;
+import uni.model.Piece;
 
 public class MinimalConsoleRenderer {
 

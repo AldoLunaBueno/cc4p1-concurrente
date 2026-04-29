@@ -2,9 +2,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package uni;
+package uni.network;
 
 import java.net.*;
+
+import uni.view.MinimalConsoleRenderer;
+
 import java.io.*;
 
 public class TetrisClient {

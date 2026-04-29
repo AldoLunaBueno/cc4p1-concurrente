@@ -1,4 +1,7 @@
-package uni;
+package uni.engine;
+
+import uni.model.Board;
+import uni.model.Piece;
 
 public class CollisionEngine {
     public boolean isValidMove(Piece piece, Board board, int deltaX, int deltaY) {

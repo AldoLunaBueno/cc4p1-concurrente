@@ -1,4 +1,7 @@
-package uni;
+package uni.engine;
+
+import uni.model.Piece;
+import uni.model.Shape;
 
 public class OnePieceGenerator implements PieceGenerator {
     private int count;

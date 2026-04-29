@@ -1,7 +1,11 @@
-package uni;
+package uni.network;
 
 import java.io.Serializable;
 import java.util.List;
+
+import uni.model.Board;
+import uni.model.GameState;
+import uni.model.Piece;
 
 public class GameUpdatePacket implements Serializable {
     private static final long serialVersionUID = 1L;

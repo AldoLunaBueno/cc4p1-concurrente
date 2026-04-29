@@ -1,10 +1,15 @@
 package uni;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static uni.Shape.PIECE_B;
+import static uni.model.Shape.PIECE_B;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uni.controller.GameController;
+import uni.engine.CollisionEngine;
+import uni.engine.OnePieceGenerator;
+import uni.model.Board;
 
 public class GameControllerTest {
     private Board board;

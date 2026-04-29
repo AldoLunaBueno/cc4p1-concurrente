@@ -1,11 +1,20 @@
-package uni;
+package uni.network;
 
 import java.net.*;
 
-import static uni.Shape.PIECE_B;
+import static uni.model.Shape.PIECE_B;
 
 import java.io.*;
 import java.util.*;
+
+import uni.command.Command;
+import uni.controller.FixedStepGameLoop;
+import uni.controller.GameController;
+import uni.controller.GameLoop;
+import uni.engine.CollisionEngine;
+import uni.engine.OnePieceGenerator;
+import uni.engine.PieceGenerator;
+import uni.model.Board;
 
 public class TetrisServer {
     private ServerSocket serverSocket;

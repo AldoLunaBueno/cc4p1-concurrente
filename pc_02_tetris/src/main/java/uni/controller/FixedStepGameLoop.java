@@ -1,4 +1,4 @@
-package uni;
+package uni.controller;
 
 public class FixedStepGameLoop implements GameLoop {
     private final GameController controller;

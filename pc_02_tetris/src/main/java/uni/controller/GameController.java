@@ -1,10 +1,19 @@
-package uni;
+package uni.controller;
+
+import static uni.model.GameState.*;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import static uni.GameState.*;
+
+import uni.command.Command;
+import uni.engine.CollisionEngine;
+import uni.engine.PieceGenerator;
+import uni.model.Board;
+import uni.model.GameState;
+import uni.model.Piece;
+import uni.network.TetrisServer;
 
 public class GameController {
     private Board board;
