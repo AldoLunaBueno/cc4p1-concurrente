@@ -103,7 +103,8 @@ public class TetrisServer {
         GameUpdatePacket packet = new GameUpdatePacket(
             controller.getBoard(), 
             controller.getPieces(), 
-            controller.getState()
+            controller.getState(),
+            controller.getScores()
         );
         synchronized(clients) {
             for (ClientHandler c : clients) {

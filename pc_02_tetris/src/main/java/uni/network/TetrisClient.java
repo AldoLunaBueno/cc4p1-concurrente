@@ -1,15 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package uni.network;
-
 import java.net.*;
-
 import uni.view.MinimalConsoleRenderer;
-
 import static uni.model.GameState.*;
-
 import java.io.*;
 
 public class TetrisClient {
@@ -26,7 +18,7 @@ public class TetrisClient {
             try {
                 while (true) {
                     GameUpdatePacket packet = (GameUpdatePacket) in.readObject();
-                    renderer.render(packet.board, packet.pieces, packet.state);
+                    renderer.render(packet.board, packet.pieces, packet.state, packet.scores);
                     if (packet.state == GAMEOVER) {
                         return;
                     }

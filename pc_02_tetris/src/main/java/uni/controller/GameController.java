@@ -3,7 +3,9 @@ package uni.controller;
 import static uni.model.GameState.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -24,6 +26,7 @@ public class GameController {
     private ArrayList<Piece> pieces;
     private int gameTick;
     private GameState state;
+    private Map<Integer, Integer> scores;
 
     // Concurrencia: Búfer seguro para múltiples hilos de red
     private ConcurrentLinkedQueue<Command> networkCommands;
@@ -45,6 +48,7 @@ public class GameController {
         this.pieces = new ArrayList<>();
         this.gameTick = 0;
         this.state = PLAYING;
+        this.scores = new HashMap<Integer, Integer>();
 
         // Concurrencia
         this.networkCommands = new ConcurrentLinkedQueue<>();
@@ -55,6 +59,7 @@ public class GameController {
     // El servidor llamará a esto cuando alguien se conecte
     public void addPlayer(int playerId) {
         activePlayers.add(playerId);
+        scores.put(playerId, 0);
     }
 
     // El servidor llamará a esto cuando alguien se desconecte
@@ -134,7 +139,7 @@ public class GameController {
             }
         }
 
-        // Gravedad controlada por ticks
+        // Gravedad controlada por ticks y limpieza de líneas
         gravityCounter++;
         if (gravityCounter >= TICKS_PER_DROP) {
             for (int i = pieces.size() - 1; i >= 0; i--) {
@@ -143,6 +148,10 @@ public class GameController {
                     piece.moveDown();
                 } else {
                     lockPiece(piece, board);
+                    int player = piece.getPlayer();
+                    int clearedLines = board.clearLines();
+                    int oldScore = scores.get(player);
+                    scores.put(player, oldScore + clearedLines);
                 }
             }
             gravityCounter = 0; // Reiniciar contador
@@ -181,5 +190,9 @@ public class GameController {
 
     public int getGameTick() {
         return this.gameTick;
+    }
+
+    public Map<Integer, Integer> getScores() {
+        return scores;
     }
 }

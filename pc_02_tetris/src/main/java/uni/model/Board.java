@@ -19,6 +19,34 @@ public class Board implements Serializable {
         this.columns = matrix[0].length;
     }
 
+    public int clearLines() {
+        int completeLines = 0;
+        boolean isComplete = true;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                if (matrix[i][j] == 0) {
+                    isComplete = false;
+                    break;
+                }
+            }
+            if (isComplete) {
+                clearOneLine(i);
+                completeLines++;
+            }
+            isComplete = true;
+        }
+
+        return completeLines;
+    }
+
+    private void clearOneLine(int cleared) {
+        for (int i = cleared; i > 0; i--) {
+            matrix[i] = matrix[i-1];
+        }
+        matrix[0] = new int[columns];
+
+    }
+
     public int getState(int x, int y) {
         return matrix[y][x];
     }
