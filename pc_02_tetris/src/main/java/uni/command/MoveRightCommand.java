@@ -1,4 +1,8 @@
-package uni;
+package uni.command;
+
+import uni.engine.CollisionEngine;
+import uni.model.Board;
+import uni.model.Piece;
 
 public class MoveRightCommand implements Command {
     @Override

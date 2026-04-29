@@ -2,11 +2,14 @@ package uni;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uni.model.Shape.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static uni.Shape.*;
+import uni.engine.CollisionEngine;
+import uni.model.Board;
+import uni.model.Piece;
 
 public class CollisionEngineTest {
     private CollisionEngine engine;

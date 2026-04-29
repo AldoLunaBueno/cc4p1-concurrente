@@ -1,4 +1,4 @@
-package uni;
+package uni.model;
 
 public enum Shape {
     

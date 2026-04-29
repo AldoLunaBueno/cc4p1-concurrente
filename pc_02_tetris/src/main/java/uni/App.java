@@ -1,6 +1,14 @@
 package uni;
 
-import static uni.Shape.PIECE_B;
+import static uni.model.Shape.PIECE_B;
+
+import uni.controller.FixedStepGameLoop;
+import uni.controller.GameController;
+import uni.controller.GameLoop;
+import uni.engine.CollisionEngine;
+import uni.engine.OnePieceGenerator;
+import uni.engine.PieceGenerator;
+import uni.model.Board;
 
 public class App {
     public static void main(String[] args) {

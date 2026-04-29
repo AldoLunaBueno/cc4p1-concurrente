@@ -1,4 +1,4 @@
-package uni;
+package uni.network;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,22 +6,35 @@ import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import uni.command.Command;
+import uni.command.MoveDownCommand;
+import uni.command.MoveLeftCommand;
+import uni.command.MoveRightCommand;
+import uni.view.PlayerSymbolMapper;
+
 class ClientHandler implements Runnable {
     private Socket socket;
     private BufferedReader in;
     private ObjectOutputStream out;
     private TetrisServer server;
-    private char playerId;
 
-    public ClientHandler(Socket socket, TetrisServer server, char playerId) throws IOException {
+    // Identidad real (lógica)
+    private int playerId;
+    
+    // Identidad visual (presentación)
+    private String displaySymbol;
+
+    public ClientHandler(Socket socket, TetrisServer server, int playerId) throws IOException {
         this.socket = socket;
         this.server = server;
         this.playerId = playerId;
+        this.displaySymbol = PlayerSymbolMapper.getSymbolForId(playerId);
+        
         this.out = new ObjectOutputStream(socket.getOutputStream());
         this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 
-    public char getPlayerId() {
+    public int getPlayerId() {
         return playerId;
     }
 
@@ -36,18 +49,18 @@ class ClientHandler implements Runnable {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Cliente desconectado: " + playerId);
-            // server.disconnectClient(this);
+            System.out.println("Error enviando paquete a Jugador " + playerId + " " + displaySymbol);
+            server.disconnectClient(this);
         }
     }
 
     public void sendPacket(GameUpdatePacket packet) {
         try {
             out.writeObject(packet);
-            out.reset(); // Crucial to prevent caching stale state
+            out.reset(); // Crucial para evitar caché del estado obsoleto
             out.flush();
         } catch (IOException e) {
-            System.out.println("Error enviando paquete a " + playerId);
+            System.out.println("Error enviando paquete a Jugador " + playerId + " " + displaySymbol);
         }
     }
 
@@ -57,6 +70,7 @@ class ClientHandler implements Runnable {
             case "a" -> new MoveLeftCommand();
             case "d" -> new MoveRightCommand();
             case "s" -> new MoveDownCommand();
+            // TODO: Añadir "w" para rotar
             default -> null;
         };
     }

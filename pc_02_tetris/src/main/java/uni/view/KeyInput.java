@@ -1,7 +1,13 @@
-package uni;
+package uni.view;
 
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import uni.command.Command;
+import uni.command.MoveDownCommand;
+import uni.command.MoveLeftCommand;
+import uni.command.MoveRightCommand;
+
 import java.util.Queue;
 
 public class KeyInput {

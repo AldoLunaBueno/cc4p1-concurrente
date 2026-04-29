@@ -1,4 +1,4 @@
-package uni;
+package uni.controller;
 
 public interface GameLoop {
     void start();

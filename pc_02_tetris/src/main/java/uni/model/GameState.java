@@ -1,4 +1,4 @@
-package uni;
+package uni.model;
 
 import java.io.Serializable;
 
