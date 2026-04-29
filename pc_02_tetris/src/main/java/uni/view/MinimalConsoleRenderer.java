@@ -1,6 +1,7 @@
 package uni.view;
 
 import java.util.List;
+import java.util.Map;
 
 import uni.model.Board;
 import uni.model.GameState;
@@ -8,7 +9,7 @@ import uni.model.Piece;
 
 public class MinimalConsoleRenderer {
 
-    public void render(Board board, List<Piece> pieces, GameState state) {
+    public void render(Board board, List<Piece> pieces, GameState state, Map<Integer, Integer> score) {
         if (state == GameState.GAMEOVER) {
             System.out.println("=== GAME OVER ===");
             return;
@@ -62,6 +63,10 @@ public class MinimalConsoleRenderer {
             frameBuffer.append("|\n"); // Salto de línea en el buffer
         }
         frameBuffer.append("=".repeat(cols * 3 + 2)).append("\n");
+        score.keySet().forEach(p -> {
+            frameBuffer.append(PlayerSymbolMapper.getSymbolForId(p)).append("=").append(score.get(p)).append(" ");
+        });
+        
 
         // 4. Un solo volcado al stream de salida
         System.out.print(frameBuffer.toString());

@@ -35,8 +35,11 @@ public class Piece implements Serializable {
         this.x++;
     }
 
-    public void rotate() {
+    public void rotateRight() {
         this.rotationIndex = (this.rotationIndex + 1) % 4;
+    }
+    public void rotateLeft() {
+        this.rotationIndex = (this.rotationIndex + 3) % 4;
     }
 
     // Obtener estado

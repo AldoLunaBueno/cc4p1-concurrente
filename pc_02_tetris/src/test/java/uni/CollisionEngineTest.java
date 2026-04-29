@@ -48,13 +48,13 @@ public class CollisionEngineTest {
     @Test
     void testBoardBoundaryCollisions() {
         Piece piece1 = new Piece(PIECE_T, 1, 0, 0);
-        piece1.rotate();
+        piece1.rotateRight();
         assertTrue(engine.isValidMove(piece1, board, -1, 0));
 
         Piece piece2 = new Piece(PIECE_T, 1, 3, 0);
-        piece2.rotate();
-        piece2.rotate();
-        piece2.rotate();
+        piece2.rotateRight();
+        piece2.rotateRight();
+        piece2.rotateRight();
         assertTrue(engine.isValidMove(piece2, board, 1, 0));
     }
 }

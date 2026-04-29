@@ -10,10 +10,11 @@ import uni.command.Command;
 import uni.command.MoveDownCommand;
 import uni.command.MoveLeftCommand;
 import uni.command.MoveRightCommand;
+import uni.command.RotateLeftCommand;
+import uni.command.RotateRightCommand;
 import uni.view.PlayerSymbolMapper;
 
 class ClientHandler implements Runnable {
-    private Socket socket;
     private BufferedReader in;
     private ObjectOutputStream out;
     private TetrisServer server;
@@ -25,7 +26,6 @@ class ClientHandler implements Runnable {
     private String displaySymbol;
 
     public ClientHandler(Socket socket, TetrisServer server, int playerId) throws IOException {
-        this.socket = socket;
         this.server = server;
         this.playerId = playerId;
         this.displaySymbol = PlayerSymbolMapper.getSymbolForId(playerId);
@@ -70,7 +70,8 @@ class ClientHandler implements Runnable {
             case "a" -> new MoveLeftCommand();
             case "d" -> new MoveRightCommand();
             case "s" -> new MoveDownCommand();
-            // TODO: Añadir "w" para rotar
+            case "w" -> new RotateLeftCommand();
+            case "e" -> new RotateRightCommand();
             default -> null;
         };
     }
