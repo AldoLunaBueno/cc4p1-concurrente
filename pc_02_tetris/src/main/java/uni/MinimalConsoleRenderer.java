@@ -50,9 +50,9 @@ public class MinimalConsoleRenderer {
             frameBuffer.append("|");
             for (int x = 0; x < cols; x++) {
                 if (display[y][x] == 0) {
-                    frameBuffer.append(" . ");
+                    frameBuffer.append(" · ");
                 } else {
-                    frameBuffer.append("[").append((char) display[y][x]).append("]");
+                    frameBuffer.append("[").append(PlayerSymbolMapper.getSymbolForId(display[y][x])).append("]");
                 }
             }
             frameBuffer.append("|\n"); // Salto de línea en el buffer
