@@ -12,8 +12,8 @@ import uni.controller.FixedStepGameLoop;
 import uni.controller.GameController;
 import uni.controller.GameLoop;
 import uni.engine.CollisionEngine;
-import uni.engine.OnePieceGenerator;
 import uni.engine.PieceGenerator;
+import uni.engine.StandardPieceGenerator;
 import uni.model.Board;
 
 public class TetrisServer {
@@ -36,9 +36,11 @@ public class TetrisServer {
 
     public TetrisServer(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
-        Board board = new Board(20, 10);
+        int columns = 10;
+        int rows = 20;
+        Board board = new Board(rows, columns);
         CollisionEngine engine = new CollisionEngine();        
-        PieceGenerator generator = new OnePieceGenerator(10, PIECE_B);
+        PieceGenerator generator = new StandardPieceGenerator(columns);
 
         this.controller = new GameController(board, engine, generator, this);
 
