@@ -8,6 +8,8 @@ import java.net.*;
 
 import uni.view.MinimalConsoleRenderer;
 
+import static uni.model.GameState.*;
+
 import java.io.*;
 
 public class TetrisClient {
@@ -25,6 +27,9 @@ public class TetrisClient {
                 while (true) {
                     GameUpdatePacket packet = (GameUpdatePacket) in.readObject();
                     renderer.render(packet.board, packet.pieces, packet.state);
+                    if (packet.state == GAMEOVER) {
+                        return;
+                    }
                 }
             } catch (Exception e) {
                 System.out.println("\n--- Desconectado del servidor ---");
