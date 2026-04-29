@@ -30,15 +30,34 @@ public class FixedStepGameLoop implements GameLoop {
             previousTime = currentTime;
             lag += elapsedTime;
 
-            // controller.processInputs(); // Moved to Server/Client queues
+
+            // Traslada comandos de la cola concurrente (red) a la cola local (lógica)
+            controller.processInputs();
+
+            // Bandera para saber si el tiempo lógico realmente avanzó
+            boolean stateChanged = false; 
 
             while (lag >= MS_PER_TICK) {
+                // Ejecuta inputs, aplica gravedad, revisa colisiones
                 controller.update();
                 lag -= MS_PER_TICK;
+                stateChanged = true; // El juego se movió
             }
 
-            // Aquí el broadcast bloquea el siguiente ciclo lógico
-            // controller.sendState(); // Moved to Server broadcast
+            // El loop decide que ya terminó de calcular la física
+            // y le dice al controlador que dispare el estado por la red.
+            // Solo asfixiamos la red si realmente hay algo nuevo que mostrar
+            if (stateChanged) {
+                controller.sendState(); 
+            }
+
+            // Yielding: Dejamos respirar al procesador y a los sockets de red
+            try {
+                // Dormir 2ms es suficiente para que el SO atienda otros hilos (como los ClientHandlers)
+                Thread.sleep(2); 
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 }

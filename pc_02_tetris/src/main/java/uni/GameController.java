@@ -1,63 +1,113 @@
 package uni;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import static uni.GameState.*;
 
 public class GameController {
     private Board board;
     private PieceGenerator generator;
     private CollisionEngine engine;
+    private TetrisServer server; // El puente hacia la red
 
     private ArrayList<Piece> pieces;
     private int gameTick;
     private GameState state;
-    // El búfer lógico del tick actual
+
+    // Concurrencia: Búfer seguro para múltiples hilos de red
+    private ConcurrentLinkedQueue<Command> networkCommands;
+    
+    // Concurrencia: Búfer local y privado del hilo del Game Loop
     private Queue<Command> currentTickCommands;
 
     // Controladores de tiempo lógico
     private int gravityCounter = 0;
     private static final int TICKS_PER_DROP = 30; // Cae cada 30 ticks (0.5s a 60 TPS)
+    private Queue<Integer> activePlayers; 
+    private int currentTurnPlayerId = 0; // Carácter nulo por defecto
 
-    // ... tus otros campos ...
-    private int activePlayerId = 0; // Por defecto o 0
-
-    public GameController(Board board, CollisionEngine engine, PieceGenerator generator) {
+    public GameController(Board board, CollisionEngine engine, PieceGenerator generator, TetrisServer server) {
         this.board = board;
         this.engine = engine;
         this.generator = generator;
+        this.server = server;
         this.pieces = new ArrayList<>();
         this.gameTick = 0;
-        this.state = GameState.PLAYING;
-        this.currentTickCommands = new java.util.LinkedList<>();
+        this.state = PLAYING;
+
+        // Concurrencia
+        this.networkCommands = new ConcurrentLinkedQueue<>();
+        this.currentTickCommands = new LinkedList<>();        
+        this.activePlayers = new LinkedList<>();
     }
 
-    // Método para que el servidor le diga al controlador quién juega
-    public void setActivePlayer(int playerId) {
-        this.activePlayerId = playerId;
+    // El servidor llamará a esto cuando alguien se conecte
+    public void addPlayer(int playerId) {
+        activePlayers.add(playerId);
     }
 
+    // El servidor llamará a esto cuando alguien se desconecte
+    public void removePlayer(int playerId) {
+        activePlayers.remove(playerId);
+        // Si se desconectó el que estaba jugando, la pieza actual cae vacía o muere, 
+        // lo manejaremos más adelante.
+    }
+
+    public int getActivePlayerId() {
+        return currentTurnPlayerId;
+    }
+
+    // MÉTODO PRODUCTOR: Llamado por los n ClientHandlers (Hilos múltiples)
     public void enqueueCommand(Command cmd) {
-        if (state == GameState.PLAYING) {
-            currentTickCommands.add(cmd);
+        if (state == PLAYING) {
+            currentTickCommands.add(cmd); // Operación atómica y segura
+        }
+    }
+
+    // MÉTODO CONSUMIDOR: Llamado ÚNICAMENTE por el GameLoop (Hilo único)
+    public void processInputs() {
+        if (state != GameState.PLAYING) return;
+        
+        // Vaciamos la cola concurrente y la pasamos a nuestra cola local
+        // para procesarla tranquilamente en el update() sin bloqueos.
+        while (!networkCommands.isEmpty()) {
+            currentTickCommands.add(networkCommands.poll());
+        }
+    }
+
+    // MÉTODO DE SALIDA: Llamado ÚNICAMENTE por el GameLoop al terminar el ciclo
+    public void sendState() {
+        if (server != null) {
+            server.broadcastState();
         }
     }
 
     // Mutación centralizada
     public boolean update() {
-        if (state != GameState.PLAYING)
+        if (state != PLAYING)
             return false;
 
-        // Spawnear nueva pieza
+        // Spawnear nueva pieza y manejar turnos
         if (pieces.isEmpty()) {
-            // AQUÍ ESTÁ EL CAMBIO: Pasamos el estado interno
-            Piece piece = generator.createPiece(this.activePlayerId);
+            if (activePlayers.isEmpty()) {
+                return true;
+            }
+
+            // Lógica Round-Robin: Sacamos al primero de la fila y lo ponemos al final
+            currentTurnPlayerId = activePlayers.poll();
+            activePlayers.add(currentTurnPlayerId);
+
+            // Pasamos el estado interno
+            Piece piece = generator.createPiece(this.currentTurnPlayerId);
             if (piece != null) {
                 if (engine.isValidMove(piece, board, 0, 0)) {
                     pieces.add(piece);
                     gameTick++;
                     return true;
                 } else {
-                    state = GameState.GAMEOVER;
+                    state = GAMEOVER;
                     gameTick++;
                     return false; // ya terminó el juego
                 }

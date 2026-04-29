@@ -1,10 +1,18 @@
 package uni;
 
 import java.net.*;
+
+import static uni.Shape.PIECE_B;
+
 import java.io.*;
 import java.util.*;
 
 public class TetrisServer {
+    private ServerSocket serverSocket;
+    private List<ClientHandler> clients = new ArrayList<>();
+    private GameController controller;
+    private int nextPlayerId = 1;
+    private final GameLoop gameLoop;
 
     public static void main(String[] args) {
         try {
@@ -15,67 +23,50 @@ public class TetrisServer {
         }
     }
 
-    private ServerSocket serverSocket;
-    private List<ClientHandler> clients = new ArrayList<>();
-    private Queue<ClientHandler> queue = new LinkedList<>();
-    private ClientHandler activeClient = null;
-    private GameController controller;
-    private char nextPlayerChar = 'A';
+    
 
     public TetrisServer(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
         Board board = new Board(20, 10);
-        CollisionEngine engine = new CollisionEngine();
-        
-        PieceGenerator generator = new PieceGenerator() {
-            @Override
-            public Piece createPiece(int playerId) { // Added int parameter to fix compilation
-                synchronized (queue) {
-                    if (!queue.isEmpty()) {
-                        activeClient = queue.poll();
-                        queue.add(activeClient); // Re-queue for next turn so it doesn't freeze!
-                        int playerCharId = activeClient.getPlayerId();
-                        controller.setActivePlayer(playerCharId);
-                        return new Piece(Shape.PIECE_B, playerCharId, 10 / 2, 0);
-                    }
-                }
-                activeClient = null;
-                return null;
-            }
-        };
+        CollisionEngine engine = new CollisionEngine();        
+        PieceGenerator generator = new OnePieceGenerator(10, PIECE_B);
 
-        this.controller = new GameController(board, engine, generator);
+        this.controller = new GameController(board, engine, generator, this);
+
+        // Inyectar el gameloop
+        this.gameLoop = new FixedStepGameLoop(controller);
     }
 
     public void start() throws IOException {
         System.out.println("Servidor iniciado...");
 
         // aceptar clientes en otro hilo
-        new Thread(() -> {
-            while (true) {
-                try {
-                    Socket socket = serverSocket.accept();
-                    ClientHandler client = new ClientHandler(socket, this, nextPlayerChar++);
-                    synchronized (clients) {
-                        clients.add(client);
-                    }
-                    synchronized (queue) {
-                        queue.add(client);
-                    }
-                    new Thread(client).start();
-                    System.out.println("Cliente conectado: " + client.getPlayerId());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+        new Thread(this::acceptClients).start();
 
         // loop del juego (servidor manda)
+        gameLoop.start();
+    }
+
+    private void acceptClients() {
         while (true) {
-            controller.update();
-            broadcastState();
-            
-            try { Thread.sleep(16); } catch (InterruptedException e) {}
+            try {
+                Socket socket = serverSocket.accept();
+                int newPlayerId = nextPlayerId++;
+                ClientHandler client = new ClientHandler(socket, this, newPlayerId);
+                
+                synchronized (clients) {
+                    clients.add(client);
+                }
+                
+                // NOTIFICAMOS AL MODELO: "Un nuevo jugador ha entrado"
+                controller.addPlayer(newPlayerId);
+                
+                new Thread(client, "ClientThread-" + client.getPlayerId()).start();
+                System.out.println("Cliente conectado: " + newPlayerId);
+                
+            } catch (IOException e) {
+                break; 
+            }
         }
     }
 
@@ -83,22 +74,21 @@ public class TetrisServer {
         synchronized (clients) {
             clients.remove(client);
         }
-        synchronized (queue) {
-            queue.remove(client);
-        }
-        if (activeClient == client) {
-            activeClient = null; // Next server tick will assign a new player naturally because pieces will lock/empty
-        }
-        System.out.println("Servidor: Cliente removido de la cola.");
+        
+        // NOTIFICAMOS AL MODELO: "Alguien se fue"
+        controller.removePlayer(client.getPlayerId());
+        
+        System.out.println("Servidor: Cliente " + client.getPlayerId() + " desconectado.");
     }
 
     public void receiveCommand(Command cmd, ClientHandler sender) {
-        if (sender == activeClient) {
-            controller.enqueueCommand(cmd);
+        // LE PREGUNTAMOS AL MODELO: ¿Es el turno de este cliente que me envió el comando?
+        if (sender.getPlayerId() == controller.getActivePlayerId()) {
+            controller.enqueueCommand(cmd); 
         }
     }
 
-    private void broadcastState() {
+    public void broadcastState() {
         GameUpdatePacket packet = new GameUpdatePacket(
             controller.getBoard(), 
             controller.getPieces(), 
