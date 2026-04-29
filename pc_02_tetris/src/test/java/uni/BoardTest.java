@@ -40,4 +40,19 @@ public class BoardTest {
         assertEquals(board.getState(4, 19), 0);
         assertEquals(board.getState(6, 19), 0);
     }
+
+    @Test
+    void testClearLines() {
+        Board board = new Board(new int[][] {
+            {0, 1, 0, 0},
+            {1, 1, 1, 1},
+            {1, 1, 1, 1}
+        });
+        int clearedLines = board.clearLines();
+        assertEquals(2, clearedLines);
+        assertEquals(board.getState(0, 0), 0);
+        assertEquals(board.getState(0, 1), 0);
+        assertEquals(board.getState(0, 2), 0);
+        assertEquals(board.getState(1, 2), 1);
+    }
 }
