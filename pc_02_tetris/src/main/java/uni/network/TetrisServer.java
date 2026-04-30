@@ -25,7 +25,7 @@ public class TetrisServer {
 
     public static void main(String[] args) {
         try {
-            TetrisServer server = new TetrisServer(5000);
+            TetrisServer server = new TetrisServer();
             server.start();
         } catch (Exception e) {
             e.printStackTrace();
@@ -34,18 +34,21 @@ public class TetrisServer {
 
     
 
-    public TetrisServer(int port) throws IOException {
-        this.serverSocket = new ServerSocket(port);
+    public TetrisServer() throws IOException {
+        
         Scanner scanner  = new Scanner(System.in);
         System.out.print("Columnas: ");
         int columns = scanner.nextInt();
         System.out.print("Filas: ");
         int rows = scanner.nextInt();
+        System.out.print("Puerto: ");
+        int port = scanner.nextInt();
         scanner.close();
         Board board = new Board(rows, columns);
         CollisionEngine engine = new CollisionEngine();        
         PieceGenerator generator = new StandardPieceGenerator(columns);
 
+        this.serverSocket = new ServerSocket(port);
         this.controller = new GameController(board, engine, generator, this);
 
         // Inyectar el gameloop
