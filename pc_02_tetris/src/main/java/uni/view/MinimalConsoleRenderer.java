@@ -9,9 +9,24 @@ import uni.model.Piece;
 
 public class MinimalConsoleRenderer {
 
-    public void render(Board board, List<Piece> pieces, GameState state, Map<Integer, Integer> score) {
+    public void render(Board board, List<Piece> pieces, GameState state, Map<Integer, Integer> scores, List<Integer> winners) {
         if (state == GameState.GAMEOVER) {
             System.out.println("=== GAME OVER ===");
+            if (winners != null) {
+                if (winners.size() == 1) {
+                    System.out.println("Ganador:");
+                } else {
+                    System.out.println("Ganadores:");
+                } 
+                    
+                for (int i = 0; i < winners.size(); i++) {
+                    int id = winners.get(i);
+                    int score = scores.get(id);
+                    System.out.println("Jugador " + PlayerSymbolMapper.getSymbolForId(id) + " = " + score);
+                }
+            } else {
+                System.out.println("No hay ganador. :(");
+            }
             return;
         }
 
@@ -63,9 +78,10 @@ public class MinimalConsoleRenderer {
             frameBuffer.append("|\n"); // Salto de línea en el buffer
         }
         frameBuffer.append("=".repeat(cols * 3 + 2)).append("\n");
-        score.keySet().forEach(p -> {
-            frameBuffer.append(PlayerSymbolMapper.getSymbolForId(p)).append("=").append(score.get(p)).append(" ");
+        scores.keySet().forEach(p -> {
+            frameBuffer.append(PlayerSymbolMapper.getSymbolForId(p)).append("=").append(scores.get(p)).append(" ");
         });
+        frameBuffer.append("\n");
         
 
         // 4. Un solo volcado al stream de salida

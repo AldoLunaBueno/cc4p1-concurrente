@@ -15,11 +15,13 @@ public class GameUpdatePacket implements Serializable {
     public final List<Piece> pieces;
     public final GameState state;
     public final Map<Integer, Integer> scores;
+    public final List<Integer> winners;
 
-    public GameUpdatePacket(Board board, List<Piece> pieces, GameState state, Map<Integer, Integer> scores) {
+    public GameUpdatePacket(Board board, List<Piece> pieces, GameState state, Map<Integer, Integer> scores, List<Integer> winners) {
         this.board = board;
         this.pieces = pieces;
         this.state = state;
         this.scores = scores;
+        this.winners = winners;
     }
 }

@@ -36,8 +36,12 @@ public class TetrisServer {
 
     public TetrisServer(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
-        int columns = 10;
-        int rows = 20;
+        Scanner scanner  = new Scanner(System.in);
+        System.out.print("Columnas: ");
+        int columns = scanner.nextInt();
+        System.out.print("Filas: ");
+        int rows = scanner.nextInt();
+        scanner.close();
         Board board = new Board(rows, columns);
         CollisionEngine engine = new CollisionEngine();        
         PieceGenerator generator = new StandardPieceGenerator(columns);
@@ -102,9 +106,10 @@ public class TetrisServer {
     public void broadcastState() {
         GameUpdatePacket packet = new GameUpdatePacket(
             controller.getBoard(), 
-            controller.getPieces(), 
+            controller.getPieces(),
             controller.getState(),
-            controller.getScores()
+            controller.getScores(),
+            controller.getWinners()
         );
         synchronized(clients) {
             for (ClientHandler c : clients) {
