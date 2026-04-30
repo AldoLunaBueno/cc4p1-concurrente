@@ -3,8 +3,11 @@ package uni.controller;
 import static uni.model.GameState.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -27,6 +30,7 @@ public class GameController {
     private int gameTick;
     private GameState state;
     private Map<Integer, Integer> scores;
+    private List<Integer> winningPlayers;
 
     // Concurrencia: Búfer seguro para múltiples hilos de red
     private ConcurrentLinkedQueue<Command> networkCommands;
@@ -49,6 +53,7 @@ public class GameController {
         this.gameTick = 0;
         this.state = PLAYING;
         this.scores = new HashMap<Integer, Integer>();
+        this.winningPlayers = new ArrayList<>();
 
         // Concurrencia
         this.networkCommands = new ConcurrentLinkedQueue<>();
@@ -122,6 +127,7 @@ public class GameController {
                     return true;
                 } else {
                     state = GAMEOVER;
+                    calculateWinners();
                     gameTick++;
                     return false; // ya terminó el juego
                 }
@@ -161,6 +167,21 @@ public class GameController {
         return true;
     }
 
+    private void calculateWinners() {
+        int max = Collections.max(scores.values());
+        if (max == 0) return;
+        
+        for (var player : scores.keySet()) {
+            if (scores.get(player) == max) {
+                winningPlayers.add(player);
+            }
+        }
+
+        if (winningPlayers.size() > 3) {
+            winningPlayers = null;
+        }
+    }
+
     private void lockPiece(Piece piece, Board board) {
         int player = piece.getPlayer();
         for (int i = 0; i < piece.rows(); i++) {
@@ -194,5 +215,9 @@ public class GameController {
 
     public Map<Integer, Integer> getScores() {
         return scores;
+    }
+
+    public List<Integer> getWinners() {
+        return winningPlayers;
     }
 }

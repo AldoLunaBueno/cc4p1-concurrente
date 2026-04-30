@@ -57,4 +57,14 @@ public class CollisionEngineTest {
         piece2.rotateRight();
         assertTrue(engine.isValidMove(piece2, board, 1, 0));
     }
+
+    @Test
+    void testRotation() {
+        Piece piece = new Piece(PIECE_T, 1, 0, 0);
+        piece.rotateRight();
+        piece.moveLeft();
+        assertFalse(engine.isValidMove(piece, board, 1));
+        assertFalse(engine.isValidMove(piece, board, -1));
+            
+    }
 }

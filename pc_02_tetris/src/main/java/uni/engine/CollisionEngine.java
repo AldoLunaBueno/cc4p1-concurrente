@@ -29,22 +29,23 @@ public class CollisionEngine {
 
     public boolean isValidMove(Piece piece, Board board, int rotation) {
         // vale para movimientos de rotación hacia la derecha o hacia la izquierda
+        boolean isValid = true;
 
         if (rotation == 1) {
             piece.rotateRight();
             if (!isValidMove(piece, board, 0, 0)) {
-                return false;
+                isValid = false;
             }
             piece.rotateLeft();
         } else if (rotation == -1) {
             piece.rotateLeft();
             if (!isValidMove(piece, board, 0, 0)) {
-                return false;
+                isValid = false;
             }
             piece.rotateRight();
         } else {
-            return false;
+            isValid = false;
         }
-        return true;
+        return isValid;
     }
 }
