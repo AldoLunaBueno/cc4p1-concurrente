@@ -3,7 +3,6 @@ package uni.controller;
 import static uni.model.GameState.*;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -40,7 +39,7 @@ public class GameController {
 
     // Controladores de tiempo lógico
     private int gravityCounter = 0;
-    private static final int TICKS_PER_DROP = 30; // Cae cada 30 ticks (0.5s a 60 TPS)
+    private int currentTicksPerDrop;
     private Queue<Integer> activePlayers; 
     private int currentTurnPlayerId = 0; // Carácter nulo por defecto
 
@@ -51,6 +50,7 @@ public class GameController {
         this.server = server;
         this.pieces = new ArrayList<>();
         this.gameTick = 0;
+        this.currentTicksPerDrop = 30; // Velocidad base a 60 TPS
         this.state = PLAYING;
         this.scores = new HashMap<Integer, Integer>();
         this.winningPlayers = new ArrayList<>();
@@ -72,6 +72,12 @@ public class GameController {
         activePlayers.remove(playerId);
         // Si se desconectó el que estaba jugando, la pieza actual cae vacía o muere, 
         // lo manejaremos más adelante.
+    }
+
+    // Método explícito para alterar el ritmo desde afuera (ej. pruebas de estrés)
+    public void forceTicksPerDrop(int newTicks) {
+        // Protegemos el motor matemático: la gravedad no puede ser <= 0
+        this.currentTicksPerDrop = Math.max(1, newTicks); 
     }
 
     public int getActivePlayerId() {
@@ -147,7 +153,7 @@ public class GameController {
 
         // Gravedad controlada por ticks y limpieza de líneas
         gravityCounter++;
-        if (gravityCounter >= TICKS_PER_DROP) {
+        if (gravityCounter >= currentTicksPerDrop) {
             for (int i = pieces.size() - 1; i >= 0; i--) {
                 Piece piece = pieces.get(i);
                 if (engine.isValidMove(piece, board, 0, 1)) {
