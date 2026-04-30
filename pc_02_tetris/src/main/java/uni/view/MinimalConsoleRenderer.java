@@ -82,7 +82,13 @@ public class MinimalConsoleRenderer {
                 if (display[y][x] == 0) {
                     frameBuffer.append(" · ");
                 } else {
-                    frameBuffer.append("[").append(PlayerSymbolMapper.getSymbolForId(display[y][x])).append("]");
+                    int pid = display[y][x];
+                    String color = PlayerSymbolMapper.getColorANSIForId(pid);
+                    String reset = PlayerSymbolMapper.ANSI_RESET;
+                    String symbol = PlayerSymbolMapper.getSymbolForId(pid);
+                    
+                    // Envolvemos todo el bloque [X] con el color
+                    frameBuffer.append(color).append("[").append(symbol).append("]").append(reset);
                 }
             }
             frameBuffer.append("|\n"); // Salto de línea en el buffer

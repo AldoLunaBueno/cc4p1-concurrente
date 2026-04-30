@@ -19,6 +19,8 @@ public class PlayerSymbolMapper {
         '\u0338'   // Nivel 12: Barra diagonal superpuesta (A̸)
     };
 
+    public static final String ANSI_RESET = "\033[0m"; // Apaga el color
+
     /**
      * Convierte un ID de jugador (1, 2, 3...) en un símbolo visual.
      * Con 26 letras y 13 niveles (base + 12 diacríticos),
@@ -42,5 +44,16 @@ public class PlayerSymbolMapper {
         }
         
         return symbol.toString();
+    }
+
+    /**
+     * Genera un color ANSI de la paleta de 256 colores basado en el ID.
+     */
+    public static String getColorANSIForId(int playerId) {
+        // La paleta ANSI 256 va del 16 al 231 para los colores.
+        // Multiplicar por 37 (un primo) "salta" por la paleta para que
+        // el Jugador 1 y el Jugador 2 no tengan tonos idénticos.
+        int colorIndex = 16 + ((playerId * 37) % 216);
+        return "\033[38;5;" + colorIndex + "m";
     }
 }
