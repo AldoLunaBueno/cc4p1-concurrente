@@ -11,24 +11,34 @@ public class MinimalConsoleRenderer {
 
     public void render(Board board, List<Piece> pieces, GameState state, Map<Integer, Integer> scores, List<Integer> winners) {
         if (state == GameState.GAMEOVER) {
-            System.out.println("=== GAME OVER ===");
-            if (winners != null) {
-                if (winners.size() == 1) {
-                    System.out.println("Ganador:");
-                } else {
-                    System.out.println("Ganadores:");
-                } 
-                    
-                for (int i = 0; i < winners.size(); i++) {
-                    int id = winners.get(i);
-                    int score = scores.get(id);
-                    System.out.println("Jugador " + PlayerSymbolMapper.getSymbolForId(id) + " = " + score);
-                }
+        // Construimos todo el mensaje final en memoria antes de imprimirlo
+        StringBuilder gameOverBuffer = new StringBuilder();
+        
+        gameOverBuffer.append("\n=== GAME OVER ===\n");
+        if (winners != null) {
+            if (winners.size() == 1) {
+                gameOverBuffer.append("Ganador:\n");
             } else {
-                System.out.println("No hay ganador. :(");
+                gameOverBuffer.append("Ganadores:\n");
+            } 
+                
+            for (int i = 0; i < winners.size(); i++) {
+                int id = winners.get(i);
+                int score = scores.get(id);
+                gameOverBuffer.append("Jugador ")
+                              .append(PlayerSymbolMapper.getSymbolForId(id))
+                              .append(" = ")
+                              .append(score)
+                              .append("\n");
             }
-            return;
+        } else {
+            gameOverBuffer.append("No hay ganador. :(\n");
         }
+        
+        // Un solo volcado a la consola (atómico)
+        System.out.print(gameOverBuffer.toString());
+        return;
+    }
 
         int rows = board.rows();
         int cols = board.columns();
@@ -72,7 +82,13 @@ public class MinimalConsoleRenderer {
                 if (display[y][x] == 0) {
                     frameBuffer.append(" · ");
                 } else {
-                    frameBuffer.append("[").append(PlayerSymbolMapper.getSymbolForId(display[y][x])).append("]");
+                    int pid = display[y][x];
+                    String color = PlayerSymbolMapper.getColorANSIForId(pid);
+                    String reset = PlayerSymbolMapper.ANSI_RESET;
+                    String symbol = PlayerSymbolMapper.getSymbolForId(pid);
+                    
+                    // Envolvemos todo el bloque [X] con el color
+                    frameBuffer.append(color).append("[").append(symbol).append("]").append(reset);
                 }
             }
             frameBuffer.append("|\n"); // Salto de línea en el buffer

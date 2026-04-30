@@ -1,4 +1,4 @@
-package uni;
+package uni.unit;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static uni.model.Shape.PIECE_B;

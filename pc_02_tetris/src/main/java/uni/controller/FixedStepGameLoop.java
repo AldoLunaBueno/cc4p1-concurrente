@@ -23,6 +23,7 @@ public class FixedStepGameLoop implements GameLoop {
     private void processGameLoop() {
         long previousTime = System.nanoTime() / 1_000_000;
         long lag = 0;
+        boolean isGameActive = true; // Control de estado global
 
         while (running) {
             long currentTime = System.nanoTime() / 1_000_000;
@@ -30,25 +31,28 @@ public class FixedStepGameLoop implements GameLoop {
             previousTime = currentTime;
             lag += elapsedTime;
 
-
             // Traslada comandos de la cola concurrente (red) a la cola local (lógica)
             controller.processInputs();
 
             // Bandera para saber si el tiempo lógico realmente avanzó
             boolean stateChanged = false; 
 
-            while (lag >= MS_PER_TICK) {
-                // Ejecuta inputs, aplica gravedad, revisa colisiones
-                controller.update();
+            while (lag >= MS_PER_TICK && isGameActive) {
+                // update() devuelve false cuando el estado es GAMEOVER
+                isGameActive = controller.update(); // evita calcular físicas de un juego terminado
                 lag -= MS_PER_TICK;
-                stateChanged = true; // El juego se movió
+                stateChanged = true; 
             }
 
-            // El loop decide que ya terminó de calcular la física
-            // y le dice al controlador que dispare el estado por la red.
-            // Solo asfixiamos la red si realmente hay algo nuevo que mostrar
+            // Enviamos el estado por la red (incluyendo el paquete final de GAMEOVER)
             if (stateChanged) {
                 controller.sendState(); 
+            }
+
+            // Una vez que el estado final fue enviado a los clientes, detenemos el motor
+            if (!isGameActive) {
+                System.out.println("Servidor: Juego terminado. Deteniendo el GameLoop...");
+                this.stop(); // Cambia 'running' a false, saliendo del bucle principal
             }
 
             // Yielding: Dejamos respirar al procesador y a los sockets de red
@@ -59,5 +63,7 @@ public class FixedStepGameLoop implements GameLoop {
                 Thread.currentThread().interrupt();
             }
         }
+        
+        System.out.println("Servidor: GameLoop finalizado correctamente.");
     }
 }

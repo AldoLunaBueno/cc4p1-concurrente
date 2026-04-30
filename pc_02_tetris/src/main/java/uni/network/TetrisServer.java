@@ -30,9 +30,7 @@ public class TetrisServer {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    
+    }    
 
     public TetrisServer() throws IOException {
         
@@ -48,7 +46,9 @@ public class TetrisServer {
         CollisionEngine engine = new CollisionEngine();        
         PieceGenerator generator = new StandardPieceGenerator(columns);
 
-        this.serverSocket = new ServerSocket(port);
+        // Definimos un backlog explícito (ej. 200 conexiones en cola)
+        int backlog = 200; 
+        this.serverSocket = new ServerSocket(port, backlog);
         this.controller = new GameController(board, engine, generator, this);
 
         // Inyectar el gameloop
@@ -88,6 +88,17 @@ public class TetrisServer {
         }
     }
 
+    // Añade esto a tu TetrisServer.java
+    public TetrisServer(int rows, int columns, int port) throws IOException {
+        Board board = new Board(rows, columns);
+        CollisionEngine engine = new CollisionEngine();        
+        PieceGenerator generator = new StandardPieceGenerator(columns);
+
+        this.serverSocket = new ServerSocket(port);
+        this.controller = new GameController(board, engine, generator, this);
+        this.gameLoop = new FixedStepGameLoop(controller);
+    }
+    
     public void disconnectClient(ClientHandler client) {
         synchronized (clients) {
             clients.remove(client);
@@ -97,6 +108,10 @@ public class TetrisServer {
         controller.removePlayer(client.getPlayerId());
         
         System.out.println("Servidor: Cliente " + client.getPlayerId() + " desconectado.");
+    }
+
+    public void forceFastDrop() {
+        controller.forceTicksPerDrop(1);
     }
 
     public void receiveCommand(Command cmd, ClientHandler sender) {
